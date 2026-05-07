@@ -63,7 +63,6 @@ for epoch in range(epochs):
             test_acc = (test_pred == y_test).float().mean()
         print(f"Epoch {epoch:3d} | Loss: {loss.item():.4f} | "
               f"Train Acc: {train_acc:.2%} | Test Acc: {test_acc:.2%}")
-        print(optimizer.get_gradient_history_info())
 
 model.eval()
 with torch.no_grad():
