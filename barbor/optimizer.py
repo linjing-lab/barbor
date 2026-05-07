@@ -122,12 +122,11 @@ class barbor(torch.optim.Optimizer):
             s, y = self._compute_updates(p, state)
             restart = self._should_restart(s, y, grad, state, group)
             new_alpha = self._compute_new_step_size(s, y, state, group, restart)
-        
+
+        self._save_state(p, grad, state, new_alpha)
         # Update parameter with new step size
         self._apply_update(p, grad, state, new_alpha, group)
         
-        # Save state for next iteration
-        self._save_state(p, grad, state, new_alpha)
         state['step'] += 1
     
     def _compute_updates(self, p, state: dict) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -165,6 +164,11 @@ class barbor(torch.optim.Optimizer):
         # Clip step size
         return torch.clamp(new_alpha, group['min_step'], group['max_step'])
     
+    def _save_state(self, p, grad: torch.Tensor, state: dict, alpha: torch.Tensor):
+        """Save current state for next iteration"""
+        state['prev_param'].copy_(p.data)
+        state['prev_grad'].copy_(grad)
+    
     def _apply_update(self, p, grad: torch.Tensor, state: dict, 
                      alpha: torch.Tensor, group: dict):
         """Apply parameter update"""
@@ -178,11 +182,6 @@ class barbor(torch.optim.Optimizer):
             )
         else:
             p.data.add_(grad, alpha=-alpha)
-    
-    def _save_state(self, p, grad: torch.Tensor, state: dict, alpha: torch.Tensor):
-        """Save current state for next iteration"""
-        state['prev_param'].copy_(p.data)
-        state['prev_grad'].copy_(grad)
     
     def get_step_sizes(self) -> List[float]:
         """Get current step sizes for all parameters"""
