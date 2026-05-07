@@ -123,7 +123,7 @@ class barbor(torch.optim.Optimizer):
             restart = self._should_restart(s, y, grad, state, group)
             new_alpha = self._compute_new_step_size(s, y, state, group, restart)
 
-        self._save_state(p, grad, state, new_alpha)
+        self._save_state(p, grad, state)
         # Update parameter with new step size
         self._apply_update(p, grad, state, new_alpha, group)
         
@@ -164,7 +164,7 @@ class barbor(torch.optim.Optimizer):
         # Clip step size
         return torch.clamp(new_alpha, group['min_step'], group['max_step'])
     
-    def _save_state(self, p, grad: torch.Tensor, state: dict, alpha: torch.Tensor):
+    def _save_state(self, p, grad: torch.Tensor, state: dict):
         """Save current state for next iteration"""
         state['prev_param'].copy_(p.data)
         state['prev_grad'].copy_(grad)
@@ -202,22 +202,6 @@ class barbor(torch.optim.Optimizer):
                 device = p.device
                 state['alpha'] = torch.tensor(alpha, device=device)
                 state['prev_alpha'] = torch.tensor(alpha, device=device)
-    
-    def get_gradient_history_info(self) -> List[Tuple[float, float, float]]:
-        """Get gradient history information
-        
-        Returns:
-            List of (s·s, s·y, y·y) values for each parameter
-        """
-        info = []
-        for group in self.param_groups:
-            for p in group['params']:
-                state = self.state[p]
-                if 'prev_grad' in state and p.grad is not None:
-                    s, y = self._compute_updates(p, state)
-                    s_dot_s, s_dot_y, y_dot_y = compute_dot_products(s, y)
-                    info.append((s_dot_s.item(), s_dot_y.item(), y_dot_y.item()))
-        return info
     
     def get_convergence_info(self) -> Dict[str, List[float]]:
         """Get convergence information"""
