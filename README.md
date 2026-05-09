@@ -2,6 +2,11 @@
 
 The gradient optimization library with barzilar borwein method.
 
+## comparison
+
+![optimizers comparison on wine datasets](./comparison.png)
+
+
 ## description
 
 This PyTorch implementation of the Barzilai-Borwein (BB) gradient descent optimizer represents a sophisticated advancement beyond standard first-order optimization methods. The core innovation lies in its adaptive step size computation that approximates second-order curvature information without explicit Hessian calculation, addressing a fundamental limitation of fixed-learning-rate gradient descent.
