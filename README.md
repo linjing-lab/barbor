@@ -6,6 +6,9 @@ The gradient optimization library with barzilar borwein method.
 
 ![optimizers comparison on wine datasets](./comparison.png)
 
+## performance
+
+![barbor optimizer on 4 datasets](./performance.png)
 
 ## description
 
